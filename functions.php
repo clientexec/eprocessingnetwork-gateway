@@ -94,73 +94,68 @@ $data .= "x_relay_response=false&";
 $data .= "x_email_customer=$authnet[email_customer]&";
 */
 
-//Check to see if the curl extension is loaded
-if($authnet[useLibCurl] == "True") {
+CE_Lib::log(4, 'Calling ePN using cURL extension');
 
-    CE_Lib::log(4, 'Calling ePN using cURL extension');
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+curl_setopt($ch,CURLOPT_URL,$authnet['url']);
+curl_setopt($ch,CURLOPT_POST,1);
+curl_setopt($ch,CURLOPT_POSTFIELDS,$data);
 
-	$ch=curl_init();
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-	curl_setopt($ch,CURLOPT_URL,$authnet['url']);
-	curl_setopt($ch,CURLOPT_POST,1);
-	curl_setopt($ch,CURLOPT_POSTFIELDS,$data);
-	//Start ob to prevent curl_exec from displaying stuff.
-	ob_start();
-	curl_exec($ch);
-	//Get contents of output buffer into the authnet_array.
-	$authnet_array=ob_get_contents();
-	curl_close($ch);
-	//End ob and erase contents.
-	ob_end_clean();
-    CE_Lib::log(4, 'ePN response: '. $authnet_array);
-	$authnet_array=explode(",",$authnet_array);
-}else {
-	//If PHP isn't compiled with the curl  library, execute curl via the command line.
-    CE_Lib::log(4, 'Calling ePN using cURL binary');
-	exec("$authnet[curl_location] -d \"$data\" $authnet[url]", $authnet_array);
-    CE_Lib::log(4, 'ePN response: '. $authnet_array[0]);
-	$authnet_array=explode(",",$authnet_array[0]);
-}
+//Start ob to prevent curl_exec from displaying stuff.
+ob_start();
+curl_exec($ch);
+
+//Get contents of output buffer into the authnet_array.
+$authnet_array = ob_get_contents();
+curl_close($ch);
+
+//End ob and erase contents.
+ob_end_clean();
+CE_Lib::log(4, 'ePN response: '. $authnet_array);
+$authnet_array = explode(",",$authnet_array);
+
 
 //Split the contents into an array
-$authnet_results=array(
-"x_response_code"=>"$authnet_array[0]",
-"x_response_subcode"=>"$authnet_array[1]",
-"x_response_reason_code"=>"$authnet_array[2]",
-"x_response_reason_text"=>"$authnet_array[3]",
-"x_auth_code"=>"$authnet_array[4]",
-"x_avs_code"=>"$authnet_array[5]",
-"x_trans_id"=>"$authnet_array[6]",
-"x_invoice_num"=>"$authnet_array[7]",
-"x_description"=>"$authnet_array[8]",
-"x_amount"=>"$authnet_array[9]",
-"x_method"=>"$authnet_array[10]",
-"x_type"=>"$authnet_array[11]",
-"x_cust_id"=>"$authnet_array[12]",
-"x_first_name"=>"$authnet_array[13]",
-"x_last_name"=>"$authnet_array[14]",
-"x_company"=>"$authnet_array[15]",
-"x_address"=>"$authnet_array[16]",
-"x_city"=>"$authnet_array[17]",
-"x_state"=>"$authnet_array[18]",
-"x_zip"=>"$authnet_array[19]",
-"x_country"=>"$authnet_array[20]",
-"x_phone"=>"$authnet_array[21]",
-"x_fax"=>"$authnet_array[22]",
-"x_email"=>"$authnet_array[23]",
-"x_ship_to_first_name"=>"$authnet_array[24]",
-"x_ship_to_last_name"=>"$authnet_array[25]",
-"x_ship_to_company"=>"$authnet_array[26]",
-"x_ship_to_address"=>"$authnet_array[27]",
-"x_ship_to_city"=>"$authnet_array[28]",
-"x_ship_to_state"=>"$authnet_array[29]",
-"x_ship_to_zip"=>"$authnet_array[30]",
-"x_ship_to_country"=>"$authnet_array[31]",
-"x_tax"=>"$authnet_array[32]",
-"x_duty"=>"$authnet_array[33]",
-"x_freight"=>"$authnet_array[34]",
-"x_tax_exempt"=>"$authnet_array[35]",
-"x_po_num"=>"$authnet_array[36]",
-"x_md5_hash"=>"$authnet_array[37]",
-"x_card_code"=>"$authnet_array[38]");
+$authnet_results = array(
+    "x_response_code"        => "$authnet_array[0]",
+    "x_response_subcode"     => "$authnet_array[1]",
+    "x_response_reason_code" =>  "$authnet_array[2]",
+    "x_response_reason_text" => "$authnet_array[3]",
+    "x_auth_code"            => "$authnet_array[4]",
+    "x_avs_code"             => "$authnet_array[5]",
+    "x_trans_id"             => "$authnet_array[6]",
+    "x_invoice_num"          => "$authnet_array[7]",
+    "x_description"          => "$authnet_array[8]",
+    "x_amount"               => "$authnet_array[9]",
+    "x_method"               => "$authnet_array[10]",
+    "x_type"                 => "$authnet_array[11]",
+    "x_cust_id"              => "$authnet_array[12]",
+    "x_first_name"           => "$authnet_array[13]",
+    "x_last_name"            => "$authnet_array[14]",
+    "x_company"              => "$authnet_array[15]",
+    "x_address"              => "$authnet_array[16]",
+    "x_city"                 => "$authnet_array[17]",
+    "x_state"                => "$authnet_array[18]",
+    "x_zip"                  => "$authnet_array[19]",
+    "x_country"              => "$authnet_array[20]",
+    "x_phone"                => "$authnet_array[21]",
+    "x_fax"                  => "$authnet_array[22]",
+    "x_email"                => "$authnet_array[23]",
+    "x_ship_to_first_name"   => "$authnet_array[24]",
+    "x_ship_to_last_name"    => "$authnet_array[25]",
+    "x_ship_to_company"      => "$authnet_array[26]",
+    "x_ship_to_address"      => "$authnet_array[27]",
+    "x_ship_to_city"         => "$authnet_array[28]",
+    "x_ship_to_state"        => "$authnet_array[29]",
+    "x_ship_to_zip"          => "$authnet_array[30]",
+    "x_ship_to_country"      => "$authnet_array[31]",
+    "x_tax"                  => "$authnet_array[32]",
+    "x_duty"                 => "$authnet_array[33]",
+    "x_freight"              => "$authnet_array[34]",
+    "x_tax_exempt"           => "$authnet_array[35]",
+    "x_po_num"               => "$authnet_array[36]",
+    "x_md5_hash"             => "$authnet_array[37]",
+    "x_card_code"            => "$authnet_array[38]"
+);
 ?>

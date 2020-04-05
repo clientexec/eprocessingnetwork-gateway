@@ -83,11 +83,6 @@ class PluginEprocessingnetwork extends GatewayPlugin
                                         "description"   =>lang("No description"),
                                         "value"         =>"1"
                                        ),
-                   lang("30 Day Billing") => array (
-                                        "type"          =>"hidden",
-                                        "description"   =>lang("Select YES if you want ClientExec to treat monthly billing by 30 day intervals.  If you select NO then the same day will be used to determine intervals."),
-                                        "value"         =>"0"
-                                       ),
                    lang("Check CVV2") => array (
                                         "type"          =>"hidden",
                                         "description"   =>lang("Select YES if you want to accept CVV2 for this plugin."),
@@ -100,7 +95,9 @@ class PluginEprocessingnetwork extends GatewayPlugin
     /*****************************************************************/
     // function plugin_eprocessingnetwork_singlepayment($params) - required function
     /*****************************************************************/
-    function singlepayment($params) { // when set to non recurring
+    function singlepayment($params)
+    {
+ // when set to non recurring
         //Function used to provide users with the ability
         //Plugin variables can be accesses via $params["plugin_[pluginname]_[variable]"] (ex. $params["plugin_paypal_UserID"])
         return $this->autopayment($params);
@@ -109,7 +106,8 @@ class PluginEprocessingnetwork extends GatewayPlugin
     /*****************************************************************/
     // function plugin_eprocessingnetwork_autopayment($userid) - required function if plugin is autopayment capable
     /*****************************************************************/
-    function autopayment($params){
+    function autopayment($params)
+    {
         //Setup authorize.net script
         //Merchant Configuration
 
@@ -123,8 +121,11 @@ class PluginEprocessingnetwork extends GatewayPlugin
         $authnet['version']= "3.1";
         $authnet['method']="CC";
         $authnet['type']="AUTH_CAPTURE";
-        if ($params["plugin_eProcessingNetwork_Demo Mode"]==1){ $authnet['test']="True"; }
-        else { $authnet['test']="False"; }
+        if ($params["plugin_eProcessingNetwork_Demo Mode"]==1) {
+            $authnet['test']="True";
+        } else {
+            $authnet['test']="False";
+        }
 
         //Email Configuration
         $authnet['merchant_email']= $params["companyBillingEmail"];
@@ -132,16 +133,6 @@ class PluginEprocessingnetwork extends GatewayPlugin
 
         //Environment Configuration
         $authnet['url']="https://www.eprocessingnetwork.com/cgi-bin/an/order.pl";
-
-        //check and see if pathCurl is installed on server
-        if ($params["pathCurl"]=="")
-        {
-              $authnet['useLibCurl']="True";
-        }else{
-              //absolute path to Curl on your system, not using libCurl
-              $authnet['curl_location']=$params["pathCurl"];
-              $authnet['useLibCurl']="False";
-        }
 
         //Get information from current user
         //Contact Information
@@ -160,17 +151,19 @@ class PluginEprocessingnetwork extends GatewayPlugin
         //used as the company name.  Wells Fargo
         //requires organization type. so we base it off
         //the organization name as well.
-        if ($params["userOrganization"]==""){;
+        if ($params["userOrganization"]=="") {
+            ;
             $authnet['company']="NA";
             $authnet['organization_type'] = "I";
-        }else{
+        } else {
             $authnet['company']=$params["userOrganization"];
             $authnet['organization_type'] = "B";
         }
 
         //Transaction Information
         $authnet['cardnum']=$params["userCCNumber"];
-        $authnet['expdate']=$params["userCCExp"];;  //MM/YYYYY
+        $authnet['expdate']=$params["userCCExp"];
+        ;  //MM/YYYYY
         $authnet['card_code']=$params["userCCCVV2"];
 
         $authnet['amount']= $params["invoiceTotal"];
@@ -183,16 +176,19 @@ class PluginEprocessingnetwork extends GatewayPlugin
             //      $tHash =  $params["plugin_authnet_MD5 Hash Value"].$params["plugin_authnet_Authorize.Net Username"].$authnet_results["x_trans_id"].sprintf("%01.2f", round($params["invoiceTotal"], 2));
             //      if (strtoupper(md5($tHash))!=strtoupper($authnet_results["x_md5_hash"])) return; //do not approve
         }*/
-        if ($params['isSignup']==1){
+        if ($params['isSignup']==1) {
             $bolInSignup = true;
-        }else{
+        } else {
             $bolInSignup = false;
         }
         include('plugins/gateways/eprocessingnetwork/callback.php');
         //Return error code
         $tReturnValue = "";
-        if (($authnet_results["x_response_code"]==1)||($authnet_results["x_response_code"]=='*1*')){ $tReturnValue = ""; }
-        else { $tReturnValue = $authnet_results["x_response_reason_text"]." Code:".$authnet_results["x_response_code"]; }
+        if (($authnet_results["x_response_code"]==1)||($authnet_results["x_response_code"]=='*1*')) {
+            $tReturnValue = "";
+        } else {
+            $tReturnValue = $authnet_results["x_response_reason_text"]." Code:".$authnet_results["x_response_code"];
+        }
         return $tReturnValue;
     }
 
@@ -212,8 +208,11 @@ class PluginEprocessingnetwork extends GatewayPlugin
         $authnet['version']= "3.1";
         $authnet['method']="CC";
         $authnet['type']="CREDIT";
-        if ($params["plugin_authnet_Demo Mode"]==1){ $authnet['test']="True"; }
-        else { $authnet['test']="False"; }
+        if ($params["plugin_authnet_Demo Mode"]==1) {
+            $authnet['test']="True";
+        } else {
+            $authnet['test']="False";
+        }
 
         //Email Configuration
         $authnet['merchant_email']= $params["companyBillingEmail"];
@@ -221,16 +220,6 @@ class PluginEprocessingnetwork extends GatewayPlugin
 
         //Environment Configuration
         $authnet['url']="https://www.eprocessingnetwork.com/cgi-bin/an/order.pl";
-
-        //check and see if pathCurl is installed on server
-        if ($params["pathCurl"]=="")
-        {
-              $authnet['useLibCurl']="True";
-        }else{
-              //absolute path to Curl on your system, not using libCurl
-              $authnet['curl_location']=$params["pathCurl"];
-              $authnet['useLibCurl']="False";
-        }
 
         //Transaction Information
         $authnet['cardnum']=$params["userCCNumber"];
@@ -242,7 +231,7 @@ class PluginEprocessingnetwork extends GatewayPlugin
 
         // Authnet's library throws a lot of E_NOTICES...
         $errorReporting = error_reporting();
-        error_reporting(E_ALL & ~E_NOTICE);
+        error_reporting(0);
         include('plugins/gateways/authnet/functions.php');
         error_reporting($errorReporting);
 
@@ -252,14 +241,14 @@ class PluginEprocessingnetwork extends GatewayPlugin
             $authnet['type'] = 'VOID';
             // Authnet's library throws a lot of E_NOTICES...
             $errorReporting = error_reporting();
-            error_reporting(E_ALL & ~E_NOTICE);
+            error_reporting(0);
             include('plugins/gateways/eprocessingnetwork/functions.php');
             error_reporting($errorReporting);
             $transType = 'void';
         }
 
         //Hash Value From Authorize.Net
-        if ($params["plugin_authnet_MD5 Hash Value"] != ""){
+        if ($params["plugin_authnet_MD5 Hash Value"] != "") {
             //      $tHash =  $params["plugin_authnet_MD5 Hash Value"].$params["plugin_authnet_Authorize.Net API Login ID"].$authnet_results["x_trans_id"].sprintf("%01.2f", round($params["invoiceTotal"], 2));
             //      if (strtoupper(md5($tHash))!=strtoupper($authnet_results["x_md5_hash"])) return; //do not approve
         }
@@ -270,12 +259,11 @@ class PluginEprocessingnetwork extends GatewayPlugin
 
         //Return error code
 
-        if($authnet_results["x_response_code"] == 1
-          || $authnet_results["x_response_code"] == '*1*'){
+        if ($authnet_results["x_response_code"] == 1
+          || $authnet_results["x_response_code"] == '*1*') {
             return array('AMOUNT' => $authnet_results["x_amount"]);
-        }else{
+        } else {
             return $authnet_results["x_response_reason_text"]." Code:".$authnet_results["x_response_code"];
         }
     }
 }
-?>
